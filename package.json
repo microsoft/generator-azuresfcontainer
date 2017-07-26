@@ -1,6 +1,6 @@
 {
   "name": "generator-azuresfcontainer",
-  "version": "0.0.0",
+  "version": "0.0.0-internal",
   "description": "Azure Service Fabric container app template generator",
   "homepage": "https://azure.microsoft.com/en-in/services/service-fabric/",
   "authors": {
