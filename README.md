@@ -4,7 +4,7 @@
 
 ## Installation
 
-First, install [Yeoman](http://yeoman.io) and generator-azuresfjava using [npm](https://www.npmjs.com/) (we assume you have pre-installed [npm](https://www.npmjs.com/) and [node.js](https://nodejs.org/)).
+First, install [Yeoman](http://yeoman.io) and generator-azuresfcontainer using [npm](https://www.npmjs.com/) (we assume you have pre-installed [npm](https://www.npmjs.com/) and [node.js](https://nodejs.org/)).
 
 ```bash
 npm install -g yo
