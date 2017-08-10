@@ -57,5 +57,5 @@ Once you have figured out all the legalities above, you can follow the steps bel
 * Make the changes
 * You can update your local Yeo using ```npm link``` (or ```sudo npm link``` as required) at the project root-level
 * Create a new project with ```yo azuresfcontainer``` (ensure it picks Yeo node-module bits from your local changes)
-* Validate that changes are working as expected and not breaking anything regressively - following the steps mentioned in the [documentation]((https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-deploy-container-linux#packaging-a-docker-container-with-yeoman) by creating and deploying the generated project on a Service Fabric cluster
+* Validate that changes are working as expected and not breaking anything regressively - following the steps mentioned in the [documentation](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-deploy-container-linux#packaging-a-docker-container-with-yeoman) by creating and deploying the generated project on a Service Fabric cluster
 * Raise a pull request and share with us 
