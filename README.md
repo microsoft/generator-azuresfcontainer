@@ -1,21 +1,25 @@
 
-# generator-azure-node
+# generator-azuresfcontainer
 > Yeoman generator for Azure Service Fabric Container projects
 
 ## Installation
 
-First, install [Yeoman](http://yeoman.io) and generator-azuresfcontainer using [npm](https://www.npmjs.com/) (we assume you have pre-installed [node.js](https://nodejs.org/)).
+First, install [Yeoman](http://yeoman.io) and generator-azuresfjava using [npm](https://www.npmjs.com/) (we assume you have pre-installed [npm](https://www.npmjs.com/) and [node.js](https://nodejs.org/)).
 
 ```bash
 npm install -g yo
 npm install -g generator-azuresfcontainer
 ```
+The commands might ask for root access. Please run them with ```sudo```, if needed.
 
 Then generate your new project:
 
 ```bash
 yo azuresfcontainer
 ```
+
+You can have a look at our [documentation](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-deploy-container-linux#packaging-a-docker-container-with-yeoman) to understand how can you deploy the generated Service Fabric container application
+
 
 ## Getting To Know Yeoman
 
@@ -43,3 +47,15 @@ provided by the bot. You will only need to do this once across all repos using o
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
+## Steps to contribute
+
+Once you have figured out all the legalities above, you can follow the steps below - 
+
+* Create a fork of this [repository](https://github.com/Azure/generator-azuresfcontainer)
+* Git clone the forked repository to your development box
+* Make the changes
+* You can update your local Yeo using ```npm link``` (or ```sudo npm link``` as required) at the project root-level
+* Create a new project with ```yo azuresfcontainer``` (ensure it picks Yeo node-module bits from your local changes)
+* Validate that changes are working as expected and not breaking anything regressively - following the steps mentioned in the [documentation]((https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-deploy-container-linux#packaging-a-docker-container-with-yeoman) by creating and deploying the generated project on a Service Fabric cluster
+* Raise a pull request and share with us 
