@@ -156,9 +156,6 @@ module.exports = generators.Base.extend({
 
             this.fs.copyTpl(  this.templatePath('Service/Settings.xml'),
             this.destinationPath(path.join(pkgDir, servicePkg , '/config/Settings.xml')));
-
-            this.fs.copyTpl(  this.templatePath('Service/code/Dummy.txt'),
-            this.destinationPath(path.join(pkgDir, servicePkg , '/code/Dummy.txt')));
             if (!this.isAddNewService) {
                 this.fs.copyTpl(
                     this.templatePath('deploy/install.sh'),
