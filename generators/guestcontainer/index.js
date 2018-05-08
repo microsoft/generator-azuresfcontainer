@@ -62,6 +62,25 @@ module.exports = generators.Base.extend({
                     when: !this._isOptionSet('instanceCount')
                 },
 
+                {
+                    name: 'portMapContainer',
+                    message: 'Enter the port you want to expose:',
+                    when: !this._isOptionSet('portMapContainer')
+                },
+
+                {
+                    name: 'portMapHost',
+                    message: 'Enter the port you want to map to on the host machine:',
+                    when: !this._isOptionSet('portMapHost')
+                },
+
+                {
+                    name:'serviceEndPointName',
+                    message: 'Enter the endpoint reference name',
+                    default: 'myServiceEndpoint',
+                    when: !this._isOptionSet('serviceEndPointName')
+                }
+
             ];
 
             this.prompt(prompts, function(props) {
@@ -99,6 +118,9 @@ module.exports = generators.Base.extend({
             var serviceName = this.props.serviceName;
             var appTypeName = this.projName + 'Type';
             var instanceCount = this.props.instanceCount;
+            var portMapContainer = this.props.portMapContainer;
+            var portMapHost = this.props.portMapHost;
+            var serviceEndPointName = this.props.serviceEndPointName;
 
             if (this.isAddNewService) {
                 var fs = require('fs');
@@ -110,10 +132,21 @@ module.exports = generators.Base.extend({
                         if (err) {
                             return console.log(err);
                         }
-                        result['ApplicationManifest']['ServiceManifestImport'][result['ApplicationManifest']['ServiceManifestImport'].length] =
+                        if (portMapHost != "" && portMapContainer != ""){
+                            result['ApplicationManifest']['ServiceManifestImport'][result['ApplicationManifest']['ServiceManifestImport'].length] =
+                            {
+                                "ServiceManifestRef":[{"$":{"ServiceManifestName":servicePkgName, "ServiceManifestVersion":"1.0.0"}}],
+                                "Policies":[{"ContainerHostPolicies":[{"$":{"CodePackageRef":"Code"},"PortBinding":[{"$":{"ContainerPort": portMapContainer, "EndpointRef": serviceEndPointName}}]}]}]
+                            }
+                        result['ApplicationManifest']['DefaultServices'][0]['Service'][result['ApplicationManifest']['DefaultServices'][0]['Service'].length] =
+                            {"$":{"Name":serviceName},"StatelessService":[{"$":{"ServiceTypeName":serviceTypeName,"InstanceCount":instanceCount},"SingletonPartition":[""]}]};
+                        }
+                        else{
+                            result['ApplicationManifest']['ServiceManifestImport'][result['ApplicationManifest']['ServiceManifestImport'].length] =
                             {"ServiceManifestRef":[{"$":{"ServiceManifestName":servicePkgName, "ServiceManifestVersion":"1.0.0"}}]}
                         result['ApplicationManifest']['DefaultServices'][0]['Service'][result['ApplicationManifest']['DefaultServices'][0]['Service'].length] =
                             {"$":{"Name":serviceName},"StatelessService":[{"$":{"ServiceTypeName":serviceTypeName,"InstanceCount":instanceCount},"SingletonPartition":[""]}]};
+                        }
                         var builder = new xml2js.Builder();
                         var xml = builder.buildObject(result);
                         fs.writeFile(path.join(appPackagePath, 'ApplicationManifest.xml'), xml, function(err) {
@@ -125,16 +158,32 @@ module.exports = generators.Base.extend({
                 });
 
             } else { 
-                this.fs.copyTpl(  this.templatePath('ApplicationManifest.xml'),
+                if (portMapHost != "" && portMapContainer != "" ){
+                    this.fs.copyTpl(this.templatePath('ApplicationManifestWithPorts.xml'),
                     this.destinationPath(path.join(appPackagePath, '/ApplicationManifest.xml')),
                     {
                         appTypeName: appTypeName,
                         serviceName: serviceName,
                         serviceTypeName: serviceTypeName,
                         servicePkgName: servicePkgName,
-                        instanceCount: instanceCount
+                        instanceCount: instanceCount,
+                        portMapContainer: portMapContainer,
+                        serviceEndPointName: serviceEndPointName
                     }
-                ); 
+                );
+                }
+                else{
+                    this.fs.copyTpl(this.templatePath('ApplicationManifest.xml'),
+                        this.destinationPath(path.join(appPackagePath, '/ApplicationManifest.xml')),
+                        {
+                            appTypeName: appTypeName,
+                            serviceName: serviceName,
+                            serviceTypeName: serviceTypeName,
+                            servicePkgName: servicePkgName,
+                            instanceCount: instanceCount
+                        }
+                    );       
+                }
             }
         }, 
 
@@ -144,7 +193,21 @@ module.exports = generators.Base.extend({
             var appTypeName = this.projName + 'Type';
             var pkgDir = this.isAddNewService == false ? path.join(this.projName, this.projName) : this.projName;
 
-            this.fs.copyTpl(  this.templatePath('Service/ServiceManifest.xml'),
+            if (this.props.portMapHost != "" && this.props.portMapContainer != "" ){
+                this.fs.copyTpl(  this.templatePath('Service/ServiceManifestWithPorts.xml'),
+                this.destinationPath(path.join(pkgDir, servicePkg, '/ServiceManifest.xml')),
+                {
+                    serviceTypeName: serviceTypeName,
+                    servicePkgName: servicePkg,
+                    imageName: this.props.imageName,
+                    commands: this.props.commands,
+                    portMapHost: this.props.portMapHost,
+                    serviceEndPointName: this.props.serviceEndPointName
+                }
+            ); 
+            }
+            else{
+                this.fs.copyTpl(  this.templatePath('Service/ServiceManifest.xml'),
                 this.destinationPath(path.join(pkgDir, servicePkg, '/ServiceManifest.xml')),
                 {
                     serviceTypeName: serviceTypeName,
@@ -153,7 +216,7 @@ module.exports = generators.Base.extend({
                     commands: this.props.commands
                 }
             ); 
-
+            }
             this.fs.copyTpl(  this.templatePath('Service/Settings.xml'),
             this.destinationPath(path.join(pkgDir, servicePkg , '/config/Settings.xml')));
             if (!this.isAddNewService) {
@@ -174,7 +237,7 @@ module.exports = generators.Base.extend({
                         appPackage: this.projName,
                         appName: this.projName,
                         appTypeName: appTypeName
-                        }
+                    }
                 );
             }
 
