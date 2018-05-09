@@ -63,24 +63,10 @@ module.exports = generators.Base.extend({
                 },
 
                 {
-                    name: 'portMapContainer',
-                    message: 'Enter the port you want to expose:',
-                    when: !this._isOptionSet('portMapContainer')
-                },
-
-                {
-                    name: 'portMapHost',
-                    message: 'Enter the port you want to map to on the host machine:',
-                    when: !this._isOptionSet('portMapHost')
-                },
-
-                {
-                    name:'serviceEndPointName',
-                    message: 'Enter the endpoint reference name',
-                    default: 'myServiceEndpoint',
-                    when: !this._isOptionSet('serviceEndPointName')
+                    name: 'portMap',
+                    message: 'Enter the container-host mapping of the format container_port:host_port or press enter if not needed):',
+                    when: !this._isOptionSet('portMap')
                 }
-
             ];
 
             this.prompt(prompts, function(props) {
@@ -118,9 +104,16 @@ module.exports = generators.Base.extend({
             var serviceName = this.props.serviceName;
             var appTypeName = this.projName + 'Type';
             var instanceCount = this.props.instanceCount;
-            var portMapContainer = this.props.portMapContainer;
-            var portMapHost = this.props.portMapHost;
-            var serviceEndPointName = this.props.serviceEndPointName;
+            if(this.props.portMap != ""){
+                var portMap = this.props.portMap.split(":");
+                var portMapContainer = portMap[0];
+                var portMapHost = portMap[1];
+            }
+            else{
+                var portMapContainer = "";
+                var portMapHost = "";
+            }
+            var serviceEndPointName = this.props.serviceName + 'Endpoint';
 
             if (this.isAddNewService) {
                 var fs = require('fs');
@@ -192,8 +185,18 @@ module.exports = generators.Base.extend({
             var serviceTypeName = this.props.serviceName + 'Type';
             var appTypeName = this.projName + 'Type';
             var pkgDir = this.isAddNewService == false ? path.join(this.projName, this.projName) : this.projName;
+            if(this.props.portMap != ""){
+                var portMap = this.props.portMap.split(":");
+                var portMapContainer = portMap[0];
+                var portMapHost = portMap[1];
+            }
+            else{
+                var portMapContainer = "";
+                var portMapHost = "";
+            }
+            var serviceEndPointName = this.props.serviceName + 'Endpoint';
 
-            if (this.props.portMapHost != "" && this.props.portMapContainer != "" ){
+            if (portMapHost != "" && portMapContainer != "" ){
                 this.fs.copyTpl(  this.templatePath('Service/ServiceManifestWithPorts.xml'),
                 this.destinationPath(path.join(pkgDir, servicePkg, '/ServiceManifest.xml')),
                 {
@@ -201,8 +204,8 @@ module.exports = generators.Base.extend({
                     servicePkgName: servicePkg,
                     imageName: this.props.imageName,
                     commands: this.props.commands,
-                    portMapHost: this.props.portMapHost,
-                    serviceEndPointName: this.props.serviceEndPointName
+                    portMapHost: portMapHost,
+                    serviceEndPointName: serviceEndPointName
                 }
             ); 
             }
