@@ -64,7 +64,7 @@ module.exports = generators.Base.extend({
 
                 {
                     name: 'portMap',
-                    message: 'Enter the container-host mapping of the format container_port:host_port or press enter if not needed):',
+                    message: 'Enter the container host mapping in the following format, container_port:host_port or press enter if not needed:',
                     when: !this._isOptionSet('portMap')
                 }
             ];
@@ -185,14 +185,12 @@ module.exports = generators.Base.extend({
             var serviceTypeName = this.props.serviceName + 'Type';
             var appTypeName = this.projName + 'Type';
             var pkgDir = this.isAddNewService == false ? path.join(this.projName, this.projName) : this.projName;
+            var portMapContainer = "";
+            var portMapHost = "";
             if(this.props.portMap != ""){
                 var portMap = this.props.portMap.split(":");
                 var portMapContainer = portMap[0];
                 var portMapHost = portMap[1];
-            }
-            else{
-                var portMapContainer = "";
-                var portMapHost = "";
             }
             var serviceEndPointName = this.props.serviceName + 'Endpoint';
 

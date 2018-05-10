@@ -63,7 +63,7 @@ Once you have figured out all the legalities above, you can follow the steps bel
 
 ## Debugging generator using vscode
 
-* Open the repository's root folder in vscode.
+* Open the repository's root folder in VScode.
 * Run the command ```yo azuresfcontainer``` and get its process-id by running the following ```ps -aux | grep -i yo``` command.
 * Replace ```<process to which you want to attach>``` in file .vscode/launch.json with the appropriate process-id.
 * Press F5 to start debugging.
