@@ -143,6 +143,22 @@ module.exports = generators.Base.extend({
             var serviceTypeName = this.props.serviceName + 'Type';
             var appTypeName = this.projName + 'Type';
             var pkgDir = this.isAddNewService == false ? path.join(this.projName, this.projName) : this.projName;
+            var is_Windows = (process.platform=='win32');
+            var is_Linux = (process.platform=='linux');
+            var is_mac = (process.platform=='darwin');
+
+            var extension1;
+            var extension2;
+    
+            if(is_Windows)
+            {
+                extension1 = '.ps1';
+                extension2 = '.cmd';
+            }
+            else if(is_Linux){
+                extension1 = '.sh';
+                extension2 = '.sh';
+            }
 
             this.fs.copyTpl(  this.templatePath('Service/ServiceManifest.xml'),
                 this.destinationPath(path.join(pkgDir, servicePkg, '/ServiceManifest.xml')),
@@ -161,8 +177,8 @@ module.exports = generators.Base.extend({
             this.destinationPath(path.join(pkgDir, servicePkg , '/code/Dummy.txt')));
             if (!this.isAddNewService) {
                 this.fs.copyTpl(
-                    this.templatePath('deploy/install.sh'),
-                    this.destinationPath(path.join(this.projName, 'install.sh')),
+                    this.templatePath('deploy/install'+extension1),
+                    this.destinationPath(path.join(this.projName, 'install'+extension1)),
                     {
                         appPackage: this.projName,
                         appName: this.projName,
@@ -171,13 +187,20 @@ module.exports = generators.Base.extend({
                 );
 
                 this.fs.copyTpl(
-                    this.templatePath('deploy/uninstall.sh'),
-                    this.destinationPath(path.join(this.projName, 'uninstall.sh')),
+                    this.templatePath('deploy/uninstall'+extension1),
+                    this.destinationPath(path.join(this.projName, 'uninstall'+extension1)),
                     {
                         appPackage: this.projName,
                         appName: this.projName,
                         appTypeName: appTypeName
-                        }
+                    }
+                );
+
+                this.fs.copyTpl(
+                    this.templatePath('deploy/preinstall'+extension1),
+                    this.destinationPath(path.join(this.projName, 'preinstall'+extension1)),
+                    {
+                    }
                 );
             }
 
