@@ -94,8 +94,14 @@ module.exports = generators.Base.extend({
     /**
     * Write the generator specific files
     */
-    writing: {
+   _assert: function(condition, message) {
+        if(!condition){
+            console.log(message)
+        }
+        throw new Error();
+    },
 
+    writing: {
         application: function() {
 
             var appPackagePath = this.isAddNewService ? this.projName : path.join(this.projName, this.projName);
@@ -106,8 +112,11 @@ module.exports = generators.Base.extend({
             var instanceCount = this.props.instanceCount;
             if(this.props.portMap != ""){
                 var portMap = this.props.portMap.split(":");
+                this._assert(portMap.length == 2, "Entered format is incorrect")
                 var portMapContainer = portMap[0];
                 var portMapHost = portMap[1];
+                this._assert(!isNaN(portMapContainer), "The container port is not a number")
+                this._assert(!isNaN(portMapHost), "The host port is not a number")
             }
             else{
                 var portMapContainer = "";
@@ -189,8 +198,11 @@ module.exports = generators.Base.extend({
             var portMapHost = "";
             if(this.props.portMap != ""){
                 var portMap = this.props.portMap.split(":");
+                this._assert(portMap.length == 2, "Entered format is incorrect")
                 var portMapContainer = portMap[0];
                 var portMapHost = portMap[1];
+                this._assert(!isNaN(portMapContainer), "The container port is not a number")
+                this._assert(!isNaN(portMapHost), "The host port is not a number")
             }
             var serviceEndPointName = this.props.serviceName + 'Endpoint';
 
