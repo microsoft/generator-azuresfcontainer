@@ -62,6 +62,11 @@ module.exports = generators.Base.extend({
                     when: !this._isOptionSet('instanceCount')
                 },
 
+                {
+                    name: 'portMap',
+                    message: 'Enter the container host mapping in the following format, container_port:host_port or press enter if not needed:',
+                    when: !this._isOptionSet('portMap')
+                }
             ];
 
             this.prompt(prompts, function(props) {
@@ -89,8 +94,14 @@ module.exports = generators.Base.extend({
     /**
     * Write the generator specific files
     */
-    writing: {
+   _assert: function(condition, message) {
+        if(!condition){
+            console.log(message)
+        }
+        throw new Error();
+    },
 
+    writing: {
         application: function() {
 
             var appPackagePath = this.isAddNewService ? this.projName : path.join(this.projName, this.projName);
@@ -99,6 +110,19 @@ module.exports = generators.Base.extend({
             var serviceName = this.props.serviceName;
             var appTypeName = this.projName + 'Type';
             var instanceCount = this.props.instanceCount;
+            if(this.props.portMap != ""){
+                var portMap = this.props.portMap.split(":");
+                this._assert(portMap.length == 2, "Entered format is incorrect")
+                var portMapContainer = portMap[0];
+                var portMapHost = portMap[1];
+                this._assert(!isNaN(portMapContainer), "The container port is not a number")
+                this._assert(!isNaN(portMapHost), "The host port is not a number")
+            }
+            else{
+                var portMapContainer = "";
+                var portMapHost = "";
+            }
+            var serviceEndPointName = this.props.serviceName + 'Endpoint';
 
             if (this.isAddNewService) {
                 var fs = require('fs');
@@ -110,10 +134,21 @@ module.exports = generators.Base.extend({
                         if (err) {
                             return console.log(err);
                         }
-                        result['ApplicationManifest']['ServiceManifestImport'][result['ApplicationManifest']['ServiceManifestImport'].length] =
+                        if (portMapHost != "" && portMapContainer != ""){
+                            result['ApplicationManifest']['ServiceManifestImport'][result['ApplicationManifest']['ServiceManifestImport'].length] =
+                            {
+                                "ServiceManifestRef":[{"$":{"ServiceManifestName":servicePkgName, "ServiceManifestVersion":"1.0.0"}}],
+                                "Policies":[{"ContainerHostPolicies":[{"$":{"CodePackageRef":"Code"},"PortBinding":[{"$":{"ContainerPort": portMapContainer, "EndpointRef": serviceEndPointName}}]}]}]
+                            }
+                        result['ApplicationManifest']['DefaultServices'][0]['Service'][result['ApplicationManifest']['DefaultServices'][0]['Service'].length] =
+                            {"$":{"Name":serviceName},"StatelessService":[{"$":{"ServiceTypeName":serviceTypeName,"InstanceCount":instanceCount},"SingletonPartition":[""]}]};
+                        }
+                        else{
+                            result['ApplicationManifest']['ServiceManifestImport'][result['ApplicationManifest']['ServiceManifestImport'].length] =
                             {"ServiceManifestRef":[{"$":{"ServiceManifestName":servicePkgName, "ServiceManifestVersion":"1.0.0"}}]}
                         result['ApplicationManifest']['DefaultServices'][0]['Service'][result['ApplicationManifest']['DefaultServices'][0]['Service'].length] =
                             {"$":{"Name":serviceName},"StatelessService":[{"$":{"ServiceTypeName":serviceTypeName,"InstanceCount":instanceCount},"SingletonPartition":[""]}]};
+                        }
                         var builder = new xml2js.Builder();
                         var xml = builder.buildObject(result);
                         fs.writeFile(path.join(appPackagePath, 'ApplicationManifest.xml'), xml, function(err) {
@@ -125,16 +160,32 @@ module.exports = generators.Base.extend({
                 });
 
             } else { 
-                this.fs.copyTpl(  this.templatePath('ApplicationManifest.xml'),
+                if (portMapHost != "" && portMapContainer != "" ){
+                    this.fs.copyTpl(this.templatePath('ApplicationManifestWithPorts.xml'),
                     this.destinationPath(path.join(appPackagePath, '/ApplicationManifest.xml')),
                     {
                         appTypeName: appTypeName,
                         serviceName: serviceName,
                         serviceTypeName: serviceTypeName,
                         servicePkgName: servicePkgName,
-                        instanceCount: instanceCount
+                        instanceCount: instanceCount,
+                        portMapContainer: portMapContainer,
+                        serviceEndPointName: serviceEndPointName
                     }
-                ); 
+                );
+                }
+                else{
+                    this.fs.copyTpl(this.templatePath('ApplicationManifest.xml'),
+                        this.destinationPath(path.join(appPackagePath, '/ApplicationManifest.xml')),
+                        {
+                            appTypeName: appTypeName,
+                            serviceName: serviceName,
+                            serviceTypeName: serviceTypeName,
+                            servicePkgName: servicePkgName,
+                            instanceCount: instanceCount
+                        }
+                    );       
+                }
             }
         }, 
 
@@ -143,6 +194,7 @@ module.exports = generators.Base.extend({
             var serviceTypeName = this.props.serviceName + 'Type';
             var appTypeName = this.projName + 'Type';
             var pkgDir = this.isAddNewService == false ? path.join(this.projName, this.projName) : this.projName;
+          
             var is_Windows = (process.platform=='win32');
             var is_Linux = (process.platform=='linux');
             var is_mac = (process.platform=='darwin');
@@ -160,7 +212,33 @@ module.exports = generators.Base.extend({
                 extension2 = '.sh';
             }
 
-            this.fs.copyTpl(  this.templatePath('Service/ServiceManifest.xml'),
+            var portMapContainer = "";
+            var portMapHost = "";
+            if(this.props.portMap != ""){
+                var portMap = this.props.portMap.split(":");
+                this._assert(portMap.length == 2, "Entered format is incorrect")
+                var portMapContainer = portMap[0];
+                var portMapHost = portMap[1];
+                this._assert(!isNaN(portMapContainer), "The container port is not a number")
+                this._assert(!isNaN(portMapHost), "The host port is not a number")
+            }
+            var serviceEndPointName = this.props.serviceName + 'Endpoint';
+
+            if (portMapHost != "" && portMapContainer != "" ){
+                this.fs.copyTpl(  this.templatePath('Service/ServiceManifestWithPorts.xml'),
+                this.destinationPath(path.join(pkgDir, servicePkg, '/ServiceManifest.xml')),
+                {
+                    serviceTypeName: serviceTypeName,
+                    servicePkgName: servicePkg,
+                    imageName: this.props.imageName,
+                    commands: this.props.commands,
+                    portMapHost: portMapHost,
+                    serviceEndPointName: serviceEndPointName
+                }
+            ); 
+            }
+            else{
+                this.fs.copyTpl(  this.templatePath('Service/ServiceManifest.xml'),
                 this.destinationPath(path.join(pkgDir, servicePkg, '/ServiceManifest.xml')),
                 {
                     serviceTypeName: serviceTypeName,
@@ -169,12 +247,9 @@ module.exports = generators.Base.extend({
                     commands: this.props.commands
                 }
             ); 
-
+            }
             this.fs.copyTpl(  this.templatePath('Service/Settings.xml'),
             this.destinationPath(path.join(pkgDir, servicePkg , '/config/Settings.xml')));
-
-            this.fs.copyTpl(  this.templatePath('Service/code/Dummy.txt'),
-            this.destinationPath(path.join(pkgDir, servicePkg , '/code/Dummy.txt')));
             if (!this.isAddNewService) {
                 this.fs.copyTpl(
                     this.templatePath('deploy/install'+extension1),
