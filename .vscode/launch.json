@@ -5,7 +5,7 @@
     {
         "type": "node", 
         "request": "launch", 
-        "name": "azuresfjava generator", 
+        "name": "azuresfcontainer generator", 
         "program": "/usr/local/bin/yo", 
         "args": [ "azuresfcontainer" ],
         "cwd": "/tmp", 
