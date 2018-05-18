@@ -7,7 +7,7 @@
         "request": "launch", 
         "name": "azuresfjava generator", 
         "program": "/usr/local/bin/yo", 
-        "args": [ "azuresfjava" ],
+        "args": [ "azuresfcontainer" ],
         "cwd": "/tmp", 
         "console": "integratedTerminal", 
         "internalConsoleOptions": "neverOpen" 
