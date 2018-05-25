@@ -110,7 +110,7 @@ module.exports = generators.Base.extend({
             var serviceName = this.props.serviceName;
             var appTypeName = this.projName + 'Type';
             var instanceCount = this.props.instanceCount;
-            if(this.props.portMap != ""){
+            if (this.props.portMap != ""){
                 var portMap = this.props.portMap.split(":");
                 this._assert(portMap.length == 2, "Entered format is incorrect")
                 var portMapContainer = portMap[0];
@@ -118,7 +118,7 @@ module.exports = generators.Base.extend({
                 this._assert(!isNaN(portMapContainer), "The container port is not a number")
                 this._assert(!isNaN(portMapHost), "The host port is not a number")
             }
-            else{
+            else {
                 var portMapContainer = "";
                 var portMapHost = "";
             }
@@ -174,7 +174,7 @@ module.exports = generators.Base.extend({
                     }
                 );
                 }
-                else{
+                else {
                     this.fs.copyTpl(this.templatePath('ApplicationManifest.xml'),
                         this.destinationPath(path.join(appPackagePath, '/ApplicationManifest.xml')),
                         {
@@ -196,8 +196,6 @@ module.exports = generators.Base.extend({
             var pkgDir = this.isAddNewService == false ? path.join(this.projName, this.projName) : this.projName;
           
             var is_Windows = (process.platform == 'win32');
-            var is_Linux = (process.platform == 'linux');
-            var is_mac = (process.platform == 'darwin');
 
             var sdkScriptExtension;
     
@@ -211,7 +209,7 @@ module.exports = generators.Base.extend({
 
             var portMapContainer = "";
             var portMapHost = "";
-            if(this.props.portMap != ""){
+            if (this.props.portMap != ""){
                 var portMap = this.props.portMap.split(":");
                 this._assert(portMap.length == 2, "Entered format is incorrect")
                 var portMapContainer = portMap[0];
