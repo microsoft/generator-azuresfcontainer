@@ -110,7 +110,7 @@ module.exports = generators.Base.extend({
             var serviceName = this.props.serviceName;
             var appTypeName = this.projName + 'Type';
             var instanceCount = this.props.instanceCount;
-            if(this.props.portMap != ""){
+            if (this.props.portMap != ""){
                 var portMap = this.props.portMap.split(":");
                 this._assert(portMap.length == 2, "Entered format is incorrect")
                 var portMapContainer = portMap[0];
@@ -118,7 +118,7 @@ module.exports = generators.Base.extend({
                 this._assert(!isNaN(portMapContainer), "The container port is not a number")
                 this._assert(!isNaN(portMapHost), "The host port is not a number")
             }
-            else{
+            else {
                 var portMapContainer = "";
                 var portMapHost = "";
             }
@@ -174,7 +174,7 @@ module.exports = generators.Base.extend({
                     }
                 );
                 }
-                else{
+                else {
                     this.fs.copyTpl(this.templatePath('ApplicationManifest.xml'),
                         this.destinationPath(path.join(appPackagePath, '/ApplicationManifest.xml')),
                         {
@@ -194,9 +194,22 @@ module.exports = generators.Base.extend({
             var serviceTypeName = this.props.serviceName + 'Type';
             var appTypeName = this.projName + 'Type';
             var pkgDir = this.isAddNewService == false ? path.join(this.projName, this.projName) : this.projName;
+          
+            var is_Windows = (process.platform == 'win32');
+
+            var sdkScriptExtension;
+    
+            if (is_Windows)
+            {
+                sdkScriptExtension = '.ps1';
+            }
+            else {
+                sdkScriptExtension = '.sh';
+            }
+
             var portMapContainer = "";
             var portMapHost = "";
-            if(this.props.portMap != ""){
+            if (this.props.portMap != ""){
                 var portMap = this.props.portMap.split(":");
                 this._assert(portMap.length == 2, "Entered format is incorrect")
                 var portMapContainer = portMap[0];
@@ -234,8 +247,8 @@ module.exports = generators.Base.extend({
             this.destinationPath(path.join(pkgDir, servicePkg , '/config/Settings.xml')));
             if (!this.isAddNewService) {
                 this.fs.copyTpl(
-                    this.templatePath('deploy/install.sh'),
-                    this.destinationPath(path.join(this.projName, 'install.sh')),
+                    this.templatePath('deploy/install'+sdkScriptExtension),
+                    this.destinationPath(path.join(this.projName, 'install'+sdkScriptExtension)),
                     {
                         appPackage: this.projName,
                         appName: this.projName,
@@ -244,8 +257,8 @@ module.exports = generators.Base.extend({
                 );
 
                 this.fs.copyTpl(
-                    this.templatePath('deploy/uninstall.sh'),
-                    this.destinationPath(path.join(this.projName, 'uninstall.sh')),
+                    this.templatePath('deploy/uninstall'+sdkScriptExtension),
+                    this.destinationPath(path.join(this.projName, 'uninstall'+sdkScriptExtension)),
                     {
                         appPackage: this.projName,
                         appName: this.projName,
