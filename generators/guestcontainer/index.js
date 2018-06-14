@@ -97,8 +97,8 @@ module.exports = generators.Base.extend({
    _assert: function(condition, message) {
         if(!condition){
             console.log(message)
+            throw new Error();
         }
-        throw new Error();
     },
 
     writing: {
