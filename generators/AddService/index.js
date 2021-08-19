@@ -1,11 +1,11 @@
 'use strict';
 
 var path      = require('path')
-, generators    = require('yeoman-generator')
+, Generator    = require('yeoman-generator')
 , yosay     = require('yosay');
-var GuestGenerator = generators.Base.extend({
-    constructor: function () {
-        generators.Base.apply(this, arguments);
+var GuestGenerator = class extends Generator{
+    constructor(args, opts) {
+        super(args, opts);
 
         this.desc('Generate Service Fabric container application template - Add Service');
         var chalk = require('chalk');
@@ -15,31 +15,29 @@ var GuestGenerator = generators.Base.extend({
         var err = chalk.red("Project name not found in .yo-rc.json. Exiting ...");
         throw err;
         }
-    },
+    }
 
-    prompting: function () {
-        var done = this.async();
+    async prompting() {
 
         var prompts = [];
 
-        this.prompt(prompts, function (props) {
+        await this.prompt(prompts).then(props => {
             this.props = props;
             this.props.projName = this.config.get('projName');
-            done();
-        }.bind(this));
-    },
+        });
+    }
 
-    writing: function() {
+    writing() {
         var isAddNewService = true;
         this.composeWith('azuresfcontainer:guestcontainer', {
             options: { isAddNewService: isAddNewService }
         });
-    },
+    }
 
-    end: function () {
+    end() {
         this.config.save();
     }
-});
+};
 
 module.exports = GuestGenerator;
 
